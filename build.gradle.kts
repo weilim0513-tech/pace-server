@@ -55,10 +55,13 @@ dependencies {
     // 뉴스 3줄 요약 (Spring AI), 외부 API 장애 대응 (Resilience4j)
 
     // Spring AI (OpenAI 연동용)
-    implementation("org.springframework.ai:spring-ai-openai-spring-boot-starter")
+    implementation("org.springframework.ai:spring-ai-openai")
 
     // Circuit Breaker (기상청 API 죽었을 때 Fallback 처리용)
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+
+    // H2 Database (개발 및 테스트용)
+    runtimeOnly("com.h2database:h2")
 
     // Utilities & Monitoring (운영)
     // 롬복, 스웨거 문서화, 헬스 체크
@@ -87,4 +90,12 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.withType<JavaCompile> {
+    options.compilerArgs.add("--enable-preview")
+}
+
+tasks.withType<JavaExec> {
+    jvmArgs("--enable-preview")
 }

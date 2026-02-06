@@ -1,1 +1,117 @@
-spring.application.name=PACE_WAKE
+spring:
+  application:
+    name: pace-wake
+
+  # Virtual Threads (Spring Boot 4.0 기본 활성화)
+  threads:
+    virtual:
+      enabled: true
+
+  # Database 설정 (개발용 H2 인메모리)
+  datasource:
+    url: jdbc:h2:mem:pace_wake;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        default_batch_fetch_size: 100
+    open-in-view: false
+
+  # Redis 설정 (로컬)
+  data:
+    redis:
+      host: localhost
+      port: 6379
+      timeout: 1000ms
+      connect-timeout: 1000ms
+
+  # OAuth2 설정 (임시 - 환경변수로 대체 필요)
+  security:
+    oauth2:
+      client:
+        registration:
+          kakao:
+            client-id: ${KAKAO_CLIENT_ID:temp}
+            client-secret: ${KAKAO_CLIENT_SECRET:temp}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            authorization-grant-type: authorization_code
+            client-authentication-method: client_secret_post
+            scope:
+              - profile_nickname
+              - account_email
+            client-name: Kakao
+          google:
+            client-id: ${GOOGLE_CLIENT_ID:temp}
+            client-secret: ${GOOGLE_CLIENT_SECRET:temp}
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - email
+              - profile
+        provider:
+          kakao:
+            authorization-uri: https://kauth.kakao.com/oauth/authorize
+            token-uri: https://kauth.kakao.com/oauth/token
+            user-info-uri: https://kapi.kakao.com/v2/user/me
+            user-name-attribute: id
+
+  # Spring AI 설정
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY:temp}
+
+# JWT 설정
+jwt:
+  secret: ${JWT_SECRET:cGFjZS13YWtlLXVsdHJhLXNlY3VyZS1qd3Qtc2VjcmV0LWtleS0yMDI2LWZlYnJ1YXJ5LXZlcnNpb24tMQ==}
+  access-token-expiry: 1800000   # 30분
+  refresh-token-expiry: 604800000 # 7일
+
+# OAuth2 리다이렉트 URI
+app:
+  oauth2:
+    redirect-uri: http://localhost:3000/oauth/callback
+
+# Swagger UI 설정
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+    display-request-duration: true
+  default-consumes-media-type: application/json
+  default-produces-media-type: application/json
+
+# Actuator 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics
+  endpoint:
+    health:
+      show-details: always
+
+# Spring Batch 설정
+spring.batch:
+  job:
+    enabled: false
+
+# 로깅 설정
+logging:
+  level:
+    root: INFO
+    com.pace.server: DEBUG
+    org.springframework.security: DEBUG
