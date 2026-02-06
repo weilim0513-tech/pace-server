@@ -1,1 +1,1 @@
-rootProject.name = "PACE_WAKE"
+rootProject.name = "pace-server"
