@@ -8,15 +8,15 @@ import org.springframework.web.client.RestClient;
 @Configuration
 public class RestClientConfig {
 
-    @Bean
-    public RestClient restClient() {
-        SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
-        factory.setConnectTimeout(5000);
-        factory.setReadTimeout(10000);
+	@Bean
+	public RestClient restClient() {
+		SimpleClientHttpRequestFactory factory = new SimpleClientHttpRequestFactory();
+		factory.setConnectTimeout(5000);
+		factory.setReadTimeout(10000);
 
-        return RestClient.builder()
-                .requestFactory(factory)
-                .defaultHeader("User-Agent", "PACE-Wake-Server/1.0")
-                .build();
-    }
+		return RestClient.builder()
+			.requestFactory(factory)
+			.defaultHeader("User-Agent", "PACE-Wake-Server/1.0")
+			.build();
+	}
 }

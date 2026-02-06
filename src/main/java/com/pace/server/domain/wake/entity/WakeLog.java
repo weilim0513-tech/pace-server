@@ -1,16 +1,31 @@
 package com.pace.server.domain.wake.entity;
 
-import com.pace.server.domain.member.entity.User;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import com.pace.server.domain.member.entity.User;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Index;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+
 @Entity
 @Table(name = "wake_log", indexes = {
-        @Index(name = "idx_wakelog_streak", columnList = "user_id, wake_date DESC")
+	@Index(name = "idx_wakelog_streak", columnList = "user_id, wake_date DESC")
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -18,38 +33,38 @@ import java.time.LocalTime;
 @Builder
 public class WakeLog {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "log_id")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "log_id")
+	private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+	@ManyToOne(fetch = FetchType.LAZY)
+	@JoinColumn(name = "user_id", nullable = false)
+	private User user;
 
-    @Column(name = "wake_date", nullable = false)
-    private LocalDate wakeDate;
+	@Column(name = "wake_date", nullable = false)
+	private LocalDate wakeDate;
 
-    @Column(name = "wake_time", nullable = false)
-    private LocalTime wakeTime;
+	@Column(name = "wake_time", nullable = false)
+	private LocalTime wakeTime;
 
-    @Column(name = "is_success")
-    @Builder.Default
-    private boolean isSuccess = true;
+	@Column(name = "is_success")
+	@Builder.Default
+	private boolean isSuccess = true;
 
-    @Column(name = "duration_seconds")
-    private int durationSeconds;
+	@Column(name = "duration_seconds")
+	private int durationSeconds;
 
-    @Column(name = "created_at")
-    private LocalDateTime createdAt;
+	@Column(name = "created_at")
+	private LocalDateTime createdAt;
 
-    @PrePersist
-    public void prePersist() {
-        this.createdAt = LocalDateTime.now();
-    }
+	@PrePersist
+	public void prePersist() {
+		this.createdAt = LocalDateTime.now();
+	}
 
-    // 어뷰징 검증 (0.5초 미만)
-    public boolean isSuspicious() {
-        return this.durationSeconds < 1;
-    }
+	// 어뷰징 검증 (0.5초 미만)
+	public boolean isSuspicious() {
+		return this.durationSeconds < 1;
+	}
 }
