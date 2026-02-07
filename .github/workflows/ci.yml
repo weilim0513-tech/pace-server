@@ -42,7 +42,7 @@ jobs:
         SPRING_PROFILES_ACTIVE: test
 
     - name: 📊 Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@170bf024fc3b22a2a9a3f2f422aba786e51cb24f  # v2.19.0
+      uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
         files: |
