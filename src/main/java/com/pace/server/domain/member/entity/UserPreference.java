@@ -58,4 +58,8 @@ public class UserPreference extends BaseEntity {
 	public void toggleVoice(boolean enabled) {
 		this.voiceEnabled = enabled;
 	}
+
+	public void updateBriefingTime(LocalTime briefingTime) {
+		this.targetBriefingTime = briefingTime;
+	}
 }
