@@ -23,44 +23,44 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class MemberService {
 
-    private final UserRepository userRepository;
+	private final UserRepository userRepository;
 
-    /**
-     * 내 프로필 조회
-     */
-    public MemberResponse getProfile(Long userId) {
-        User user = findActiveUserById(userId);
-        return MemberResponse.from(user);
-    }
+	/**
+	 * 내 프로필 조회
+	 */
+	public MemberResponse getProfile(Long userId) {
+		User user = findActiveUserById(userId);
+		return MemberResponse.from(user);
+	}
 
-    /**
-     * 프로필 수정 (닉네임)
-     */
-    @Transactional
-    public MemberResponse updateProfile(Long userId, UpdateProfileRequest request) {
-        User user = findActiveUserById(userId);
+	/**
+	 * 프로필 수정 (닉네임)
+	 */
+	@Transactional
+	public MemberResponse updateProfile(Long userId, UpdateProfileRequest request) {
+		User user = findActiveUserById(userId);
 
-        if (request.nickname() != null) {
-            user.updateNickname(request.nickname());
-        }
+		if (request.nickname() != null) {
+			user.updateNickname(request.nickname());
+		}
 
-        log.info("Profile updated for user: {}", userId);
-        return MemberResponse.from(user);
-    }
+		log.info("Profile updated for user: {}", userId);
+		return MemberResponse.from(user);
+	}
 
-    /**
-     * 회원 탈퇴 (Soft Delete)
-     */
-    @Transactional
-    public void withdraw(Long userId) {
-        User user = findActiveUserById(userId);
-        user.deactivate();
-        log.info("User withdrawn: {}", userId);
-    }
+	/**
+	 * 회원 탈퇴 (Soft Delete)
+	 */
+	@Transactional
+	public void withdraw(Long userId) {
+		User user = findActiveUserById(userId);
+		user.deactivate();
+		log.info("User withdrawn: {}", userId);
+	}
 
-    private User findActiveUserById(Long userId) {
-        return userRepository.findById(userId)
-                .filter(User::isActive)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
-    }
+	private User findActiveUserById(Long userId) {
+		return userRepository.findById(userId)
+			.filter(User::isActive)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+	}
 }

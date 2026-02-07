@@ -30,30 +30,30 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class MemberController {
 
-    private final MemberService memberService;
+	private final MemberService memberService;
 
-    @Operation(summary = "내 프로필 조회")
-    @GetMapping("/me")
-    public ApiResponse<MemberResponse> getMyProfile(
-            @AuthenticationPrincipal CustomOAuth2User principal) {
-        MemberResponse response = memberService.getProfile(principal.getUserId());
-        return ApiResponse.ok(response);
-    }
+	@Operation(summary = "내 프로필 조회")
+	@GetMapping("/me")
+	public ApiResponse<MemberResponse> getMyProfile(
+		@AuthenticationPrincipal CustomOAuth2User principal) {
+		MemberResponse response = memberService.getProfile(principal.getUserId());
+		return ApiResponse.ok(response);
+	}
 
-    @Operation(summary = "프로필 수정", description = "닉네임 변경")
-    @PatchMapping("/me")
-    public ApiResponse<MemberResponse> updateProfile(
-            @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody UpdateProfileRequest request) {
-        MemberResponse response = memberService.updateProfile(principal.getUserId(), request);
-        return ApiResponse.success(SuccessCode.UPDATED, response);
-    }
+	@Operation(summary = "프로필 수정", description = "닉네임 변경")
+	@PatchMapping("/me")
+	public ApiResponse<MemberResponse> updateProfile(
+		@AuthenticationPrincipal CustomOAuth2User principal,
+		@Valid @RequestBody UpdateProfileRequest request) {
+		MemberResponse response = memberService.updateProfile(principal.getUserId(), request);
+		return ApiResponse.success(SuccessCode.UPDATED, response);
+	}
 
-    @Operation(summary = "회원 탈퇴", description = "계정 비활성화 (Soft Delete)")
-    @DeleteMapping("/me")
-    public ApiResponse<Void> withdraw(
-            @AuthenticationPrincipal CustomOAuth2User principal) {
-        memberService.withdraw(principal.getUserId());
-        return ApiResponse.success(SuccessCode.DELETED);
-    }
+	@Operation(summary = "회원 탈퇴", description = "계정 비활성화 (Soft Delete)")
+	@DeleteMapping("/me")
+	public ApiResponse<Void> withdraw(
+		@AuthenticationPrincipal CustomOAuth2User principal) {
+		memberService.withdraw(principal.getUserId());
+		return ApiResponse.success(SuccessCode.DELETED);
+	}
 }

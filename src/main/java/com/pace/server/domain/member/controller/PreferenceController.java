@@ -29,22 +29,22 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class PreferenceController {
 
-    private final PreferenceService preferenceService;
+	private final PreferenceService preferenceService;
 
-    @Operation(summary = "설정 조회")
-    @GetMapping
-    public ApiResponse<PreferenceResponse> getPreference(
-            @AuthenticationPrincipal CustomOAuth2User principal) {
-        PreferenceResponse response = preferenceService.getPreference(principal.getUserId());
-        return ApiResponse.ok(response);
-    }
+	@Operation(summary = "설정 조회")
+	@GetMapping
+	public ApiResponse<PreferenceResponse> getPreference(
+		@AuthenticationPrincipal CustomOAuth2User principal) {
+		PreferenceResponse response = preferenceService.getPreference(principal.getUserId());
+		return ApiResponse.ok(response);
+	}
 
-    @Operation(summary = "설정 수정", description = "지역, 음성, 브리핑 시간 설정")
-    @PutMapping
-    public ApiResponse<PreferenceResponse> updatePreference(
-            @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody UpdatePreferenceRequest request) {
-        PreferenceResponse response = preferenceService.updatePreference(principal.getUserId(), request);
-        return ApiResponse.success(SuccessCode.UPDATED, response);
-    }
+	@Operation(summary = "설정 수정", description = "지역, 음성, 브리핑 시간 설정")
+	@PutMapping
+	public ApiResponse<PreferenceResponse> updatePreference(
+		@AuthenticationPrincipal CustomOAuth2User principal,
+		@Valid @RequestBody UpdatePreferenceRequest request) {
+		PreferenceResponse response = preferenceService.updatePreference(principal.getUserId(), request);
+		return ApiResponse.success(SuccessCode.UPDATED, response);
+	}
 }

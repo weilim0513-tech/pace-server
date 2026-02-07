@@ -33,31 +33,31 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public class InterestController {
 
-    private final InterestService interestService;
+	private final InterestService interestService;
 
-    @Operation(summary = "관심 항목 목록 조회")
-    @GetMapping
-    public ApiResponse<List<InterestResponse>> getInterests(
-            @AuthenticationPrincipal CustomOAuth2User principal) {
-        List<InterestResponse> response = interestService.getInterests(principal.getUserId());
-        return ApiResponse.ok(response);
-    }
+	@Operation(summary = "관심 항목 목록 조회")
+	@GetMapping
+	public ApiResponse<List<InterestResponse>> getInterests(
+		@AuthenticationPrincipal CustomOAuth2User principal) {
+		List<InterestResponse> response = interestService.getInterests(principal.getUserId());
+		return ApiResponse.ok(response);
+	}
 
-    @Operation(summary = "관심 항목 추가", description = "키워드/주식/코인 추가 (최대 20개)")
-    @PostMapping
-    public ApiResponse<InterestResponse> addInterest(
-            @AuthenticationPrincipal CustomOAuth2User principal,
-            @Valid @RequestBody AddInterestRequest request) {
-        InterestResponse response = interestService.addInterest(principal.getUserId(), request);
-        return ApiResponse.success(SuccessCode.CREATED, response);
-    }
+	@Operation(summary = "관심 항목 추가", description = "키워드/주식/코인 추가 (최대 20개)")
+	@PostMapping
+	public ApiResponse<InterestResponse> addInterest(
+		@AuthenticationPrincipal CustomOAuth2User principal,
+		@Valid @RequestBody AddInterestRequest request) {
+		InterestResponse response = interestService.addInterest(principal.getUserId(), request);
+		return ApiResponse.success(SuccessCode.CREATED, response);
+	}
 
-    @Operation(summary = "관심 항목 삭제")
-    @DeleteMapping("/{itemId}")
-    public ApiResponse<Void> deleteInterest(
-            @AuthenticationPrincipal CustomOAuth2User principal,
-            @PathVariable Long itemId) {
-        interestService.deleteInterest(principal.getUserId(), itemId);
-        return ApiResponse.success(SuccessCode.DELETED);
-    }
+	@Operation(summary = "관심 항목 삭제")
+	@DeleteMapping("/{itemId}")
+	public ApiResponse<Void> deleteInterest(
+		@AuthenticationPrincipal CustomOAuth2User principal,
+		@PathVariable Long itemId) {
+		interestService.deleteInterest(principal.getUserId(), itemId);
+		return ApiResponse.success(SuccessCode.DELETED);
+	}
 }

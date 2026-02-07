@@ -25,53 +25,53 @@ import lombok.extern.slf4j.Slf4j;
 @Transactional(readOnly = true)
 public class PreferenceService {
 
-    private final UserPreferenceRepository preferenceRepository;
-    private final UserRepository userRepository;
+	private final UserPreferenceRepository preferenceRepository;
+	private final UserRepository userRepository;
 
-    /**
-     * 설정 조회 (없으면 기본값 생성)
-     */
-    public PreferenceResponse getPreference(Long userId) {
-        UserPreference pref = findOrCreate(userId);
-        return PreferenceResponse.from(pref);
-    }
+	/**
+	 * 설정 조회 (없으면 기본값 생성)
+	 */
+	public PreferenceResponse getPreference(Long userId) {
+		UserPreference pref = findOrCreate(userId);
+		return PreferenceResponse.from(pref);
+	}
 
-    /**
-     * 설정 수정
-     */
-    @Transactional
-    public PreferenceResponse updatePreference(Long userId, UpdatePreferenceRequest request) {
-        UserPreference pref = findOrCreate(userId);
+	/**
+	 * 설정 수정
+	 */
+	@Transactional
+	public PreferenceResponse updatePreference(Long userId, UpdatePreferenceRequest request) {
+		UserPreference pref = findOrCreate(userId);
 
-        if (request.regionCode() != null && request.regionName() != null) {
-            pref.updateRegion(request.regionCode(), request.regionName());
-        }
-        if (request.voiceEnabled() != null) {
-            pref.toggleVoice(request.voiceEnabled());
-        }
-        if (request.targetBriefingTime() != null) {
-            pref.updateBriefingTime(request.targetBriefingTime());
-        }
+		if (request.regionCode() != null && request.regionName() != null) {
+			pref.updateRegion(request.regionCode(), request.regionName());
+		}
+		if (request.voiceEnabled() != null) {
+			pref.toggleVoice(request.voiceEnabled());
+		}
+		if (request.targetBriefingTime() != null) {
+			pref.updateBriefingTime(request.targetBriefingTime());
+		}
 
-        log.info("Preference updated for user: {}", userId);
-        return PreferenceResponse.from(pref);
-    }
+		log.info("Preference updated for user: {}", userId);
+		return PreferenceResponse.from(pref);
+	}
 
-    private UserPreference findOrCreate(Long userId) {
-        return preferenceRepository.findByUserId(userId)
-                .orElseGet(() -> createDefault(userId));
-    }
+	private UserPreference findOrCreate(Long userId) {
+		return preferenceRepository.findByUserId(userId)
+			.orElseGet(() -> createDefault(userId));
+	}
 
-    @Transactional
-    protected UserPreference createDefault(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
+	@Transactional
+	protected UserPreference createDefault(Long userId) {
+		User user = userRepository.findById(userId)
+			.orElseThrow(() -> new BusinessException(ErrorCode.USER_NOT_FOUND));
 
-        UserPreference pref = UserPreference.builder()
-                .user(user)
-                .voiceEnabled(true)
-                .build();
+		UserPreference pref = UserPreference.builder()
+			.user(user)
+			.voiceEnabled(true)
+			.build();
 
-        return preferenceRepository.save(pref);
-    }
+		return preferenceRepository.save(pref);
+	}
 }
