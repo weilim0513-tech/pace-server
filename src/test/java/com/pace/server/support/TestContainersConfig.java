@@ -1,0 +1,25 @@
+package com.pace.server.support;
+
+import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
+import org.testcontainers.containers.GenericContainer;
+import org.testcontainers.utility.DockerImageName;
+
+/**
+ * 통합 테스트용 컨테이너 설정.
+ * Redis 컨테이너를 자동으로 시작/중지.
+ */
+@TestConfiguration(proxyBeanMethods = false)
+public class TestContainersConfig {
+
+    /**
+     * Redis 컨테이너 (테스트 시 자동 시작)
+     */
+    @Bean
+    @ServiceConnection(name = "redis")
+    public GenericContainer<?> redisContainer() {
+        return new GenericContainer<>(DockerImageName.parse("redis:7-alpine"))
+                .withExposedPorts(6379);
+    }
+}
