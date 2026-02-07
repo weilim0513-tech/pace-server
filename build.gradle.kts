@@ -1,7 +1,9 @@
 plugins {
 	java
+	jacoco
 	id("org.springframework.boot") version "4.0.2"
 	id("io.spring.dependency-management") version "1.1.7"
+	id("org.sonarqube") version "5.1.0.4882"
 }
 
 group = "com.pace"
@@ -90,6 +92,7 @@ dependencyManagement {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+    finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.withType<JavaCompile> {
@@ -98,4 +101,58 @@ tasks.withType<JavaCompile> {
 
 tasks.withType<JavaExec> {
     jvmArgs("--enable-preview")
+}
+
+// JaCoCo 설정
+jacoco {
+    toolVersion = "0.8.14"
+}
+
+tasks.jacocoTestReport {
+    dependsOn(tasks.test)
+    
+    // Lombok 생성 클래스 제외
+    classDirectories.setFrom(
+        files(classDirectories.files.map {
+            fileTree(it) {
+                exclude(
+                    "**/*Builder*",
+                    "**/*_*",
+                    "**/entity/**",
+                    "**/dto/**",
+                    "**/config/**",
+                    "**/*Application*"
+                )
+            }
+        })
+    )
+    
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+        csv.required.set(false)
+    }
+}
+
+tasks.jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                minimum = "0.0".toBigDecimal() // 초기에는 0%, 점진적으로 올림
+            }
+        }
+    }
+}
+
+// SonarQube 설정
+sonar {
+    properties {
+        property("sonar.projectKey", "weilim0513-tech_pace-server")
+        property("sonar.organization", "weilim0513-tech")
+        property("sonar.host.url", "https://sonarcloud.io")
+        property("sonar.coverage.jacoco.xmlReportPaths", "${layout.buildDirectory.get()}/reports/jacoco/test/jacocoTestReport.xml")
+        property("sonar.java.coveragePlugin", "jacoco")
+        property("sonar.sourceEncoding", "UTF-8")
+        property("sonar.exclusions", "**/config/**,**/entity/**,**/*Application*,**/dto/**")
+    }
 }
