@@ -1,0 +1,33 @@
+# Git
+.git
+.gitignore
+
+# IDE
+.idea
+*.iml
+.vscode
+
+# Gradle
+.gradle
+build
+!build/libs/*.jar
+
+# 문서
+*.md
+docs/
+planning-document/
+
+# 설정 파일
+*.env
+docker/.env
+
+# 테스트
+src/test
+
+# 기타
+*.log
+*.tmp
+
+# Gemini
+.gemini
+.agent

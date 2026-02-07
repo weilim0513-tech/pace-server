@@ -1,0 +1,157 @@
+name: CD - Build & Deploy
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment Environment'
+        required: true
+        default: 'prod'
+        type: choice
+        options:
+          - dev
+          - prod
+
+env:
+  DOCKER_IMAGE: ${{ secrets.DOCKER_USERNAME }}/pace-wake
+  VERSION: ${{ github.sha }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+    - name: ☕ Setup JDK 25
+      uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b  # v4.6.0
+      with:
+        java-version: '25'
+        distribution: 'temurin'
+        cache: 'gradle'
+
+    - name: 🔑 Grant Execute Permission
+      run: chmod +x gradlew
+
+    - name: 🏗️ Build Application
+      run: ./gradlew bootJar -x test --no-daemon
+
+    - name: 🐳 Set up Docker Buildx
+      uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2  # v3.10.0
+
+    - name: 🔐 Login to Docker Hub
+      uses: docker/login-action@74a5d142397b4f367a81961eba4e8cd7edddf772  # v3.4.0
+      with:
+        username: ${{ secrets.DOCKER_USERNAME }}
+        password: ${{ secrets.DOCKER_TOKEN }}
+
+    - name: 🐳 Build and Push Docker Image
+      uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1  # v6.16.0
+      with:
+        context: .
+        file: ./Dockerfile
+        push: true
+        tags: |
+          ${{ env.DOCKER_IMAGE }}:${{ env.VERSION }}
+          ${{ env.DOCKER_IMAGE }}:latest
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+    outputs:
+      image_tag: ${{ env.VERSION }}
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    environment: 
+      name: ${{ github.event.inputs.environment || 'prod' }}
+    
+    steps:
+    - name: 📥 Checkout Repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+    - name: 🔐 Configure SSH
+      uses: webfactory/ssh-agent@a6f90b1f127823b31d4d4a8d96047790581349bd  # v0.9.1
+      with:
+        ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+    - name: 📝 Create .env file on EC2
+      env:
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+        EC2_USER: ${{ secrets.EC2_USERNAME }}
+      run: |
+        ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'ENDSSH'
+          mkdir -p ~/app
+          cat > ~/app/.env << 'EOF'
+        SPRING_PROFILES_ACTIVE=prod
+        DB_HOST=${{ secrets.DB_HOST }}
+        DB_USERNAME=${{ secrets.DB_USERNAME }}
+        DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+        REDIS_HOST=${{ secrets.REDIS_HOST }}
+        REDIS_PASSWORD=${{ secrets.REDIS_PASSWORD }}
+        JWT_SECRET=${{ secrets.JWT_SECRET }}
+        KAKAO_CLIENT_ID=${{ secrets.KAKAO_CLIENT_ID }}
+        KAKAO_CLIENT_SECRET=${{ secrets.KAKAO_CLIENT_SECRET }}
+        OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+        EOF
+          echo "✅ .env file created"
+        ENDSSH
+
+    - name: 🚀 Deploy to EC2
+      env:
+        EC2_HOST: ${{ secrets.EC2_HOST }}
+        EC2_USER: ${{ secrets.EC2_USERNAME }}
+        DOCKER_IMAGE: ${{ env.DOCKER_IMAGE }}
+        VERSION: ${{ env.VERSION }}
+      run: |
+        ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << ENDSSH
+          set -e
+          
+          echo "🔄 Pulling latest image..."
+          docker pull $DOCKER_IMAGE:$VERSION
+          
+          echo "🛑 Stopping existing container..."
+          docker stop pace-app || true
+          docker rm pace-app || true
+          
+          echo "🚀 Starting new container..."
+          docker run -d \
+            --name pace-app \
+            --restart unless-stopped \
+            --network pace-network \
+            -p 8080:8080 \
+            --env-file ~/app/.env \
+            $DOCKER_IMAGE:$VERSION
+          
+          echo "⏳ Waiting for health check..."
+          sleep 30
+          
+          echo "✅ Health check..."
+          curl -f http://localhost:8080/actuator/health || exit 1
+          
+          echo "🧹 Cleaning up old images..."
+          docker image prune -f
+          
+          echo "✅ Deployment completed!"
+        ENDSSH
+
+    - name: 📢 Notify Slack on Success
+      if: success()
+      uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486  # v3.16.2
+      with:
+        status: success
+        text: '✅ PACE Wake 배포 성공! Version: ${{ env.VERSION }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    - name: 📢 Notify Slack on Failure
+      if: failure()
+      uses: 8398a7/action-slack@28ba43ae48961b90635b50953d216767a6bea486  # v3.16.2
+      with:
+        status: failure
+        text: '❌ PACE Wake 배포 실패! Version: ${{ env.VERSION }}'
+      env:
+        SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
