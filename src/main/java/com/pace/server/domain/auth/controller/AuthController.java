@@ -11,7 +11,7 @@ import com.pace.server.domain.auth.dto.TokenResponse;
 import com.pace.server.domain.auth.service.AuthService;
 import com.pace.server.global.common.code.SuccessCode;
 import com.pace.server.global.common.response.ApiResponse;
-import com.pace.server.global.security.oauth2.CustomOAuth2User;
+import com.pace.server.global.security.jwt.JwtAuthentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -47,8 +47,8 @@ public class AuthController {
 	 */
 	@Operation(summary = "로그아웃", description = "Refresh Token 삭제")
 	@PostMapping("/logout")
-	public ApiResponse<Void> logout(@AuthenticationPrincipal CustomOAuth2User principal) {
-		authService.logout(principal.getUserId());
+	public ApiResponse<Void> logout(@AuthenticationPrincipal JwtAuthentication principal) {
+		authService.logout(principal.userId());
 		return ApiResponse.success(SuccessCode.LOGOUT_SUCCESS);
 	}
 }

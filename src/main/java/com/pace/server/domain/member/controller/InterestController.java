@@ -16,7 +16,7 @@ import com.pace.server.domain.member.dto.response.InterestResponse;
 import com.pace.server.domain.member.service.InterestService;
 import com.pace.server.global.common.code.SuccessCode;
 import com.pace.server.global.common.response.ApiResponse;
-import com.pace.server.global.security.oauth2.CustomOAuth2User;
+import com.pace.server.global.security.jwt.JwtAuthentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -38,26 +38,26 @@ public class InterestController {
 	@Operation(summary = "관심 항목 목록 조회")
 	@GetMapping
 	public ApiResponse<List<InterestResponse>> getInterests(
-		@AuthenticationPrincipal CustomOAuth2User principal) {
-		List<InterestResponse> response = interestService.getInterests(principal.getUserId());
+			@AuthenticationPrincipal JwtAuthentication principal) {
+		List<InterestResponse> response = interestService.getInterests(principal.userId());
 		return ApiResponse.ok(response);
 	}
 
 	@Operation(summary = "관심 항목 추가", description = "키워드/주식/코인 추가 (최대 20개)")
 	@PostMapping
 	public ApiResponse<InterestResponse> addInterest(
-		@AuthenticationPrincipal CustomOAuth2User principal,
-		@Valid @RequestBody AddInterestRequest request) {
-		InterestResponse response = interestService.addInterest(principal.getUserId(), request);
+			@AuthenticationPrincipal JwtAuthentication principal,
+			@Valid @RequestBody AddInterestRequest request) {
+		InterestResponse response = interestService.addInterest(principal.userId(), request);
 		return ApiResponse.success(SuccessCode.CREATED, response);
 	}
 
 	@Operation(summary = "관심 항목 삭제")
 	@DeleteMapping("/{itemId}")
 	public ApiResponse<Void> deleteInterest(
-		@AuthenticationPrincipal CustomOAuth2User principal,
-		@PathVariable Long itemId) {
-		interestService.deleteInterest(principal.getUserId(), itemId);
+			@AuthenticationPrincipal JwtAuthentication principal,
+			@PathVariable Long itemId) {
+		interestService.deleteInterest(principal.userId(), itemId);
 		return ApiResponse.success(SuccessCode.DELETED);
 	}
 }

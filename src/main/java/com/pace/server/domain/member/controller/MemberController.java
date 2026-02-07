@@ -13,7 +13,7 @@ import com.pace.server.domain.member.dto.response.MemberResponse;
 import com.pace.server.domain.member.service.MemberService;
 import com.pace.server.global.common.code.SuccessCode;
 import com.pace.server.global.common.response.ApiResponse;
-import com.pace.server.global.security.oauth2.CustomOAuth2User;
+import com.pace.server.global.security.jwt.JwtAuthentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -35,25 +35,25 @@ public class MemberController {
 	@Operation(summary = "내 프로필 조회")
 	@GetMapping("/me")
 	public ApiResponse<MemberResponse> getMyProfile(
-		@AuthenticationPrincipal CustomOAuth2User principal) {
-		MemberResponse response = memberService.getProfile(principal.getUserId());
+			@AuthenticationPrincipal JwtAuthentication principal) {
+		MemberResponse response = memberService.getProfile(principal.userId());
 		return ApiResponse.ok(response);
 	}
 
 	@Operation(summary = "프로필 수정", description = "닉네임 변경")
 	@PatchMapping("/me")
 	public ApiResponse<MemberResponse> updateProfile(
-		@AuthenticationPrincipal CustomOAuth2User principal,
-		@Valid @RequestBody UpdateProfileRequest request) {
-		MemberResponse response = memberService.updateProfile(principal.getUserId(), request);
+			@AuthenticationPrincipal JwtAuthentication principal,
+			@Valid @RequestBody UpdateProfileRequest request) {
+		MemberResponse response = memberService.updateProfile(principal.userId(), request);
 		return ApiResponse.success(SuccessCode.UPDATED, response);
 	}
 
 	@Operation(summary = "회원 탈퇴", description = "계정 비활성화 (Soft Delete)")
 	@DeleteMapping("/me")
 	public ApiResponse<Void> withdraw(
-		@AuthenticationPrincipal CustomOAuth2User principal) {
-		memberService.withdraw(principal.getUserId());
+			@AuthenticationPrincipal JwtAuthentication principal) {
+		memberService.withdraw(principal.userId());
 		return ApiResponse.success(SuccessCode.DELETED);
 	}
 }

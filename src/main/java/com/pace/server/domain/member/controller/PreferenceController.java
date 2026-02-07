@@ -12,7 +12,7 @@ import com.pace.server.domain.member.dto.response.PreferenceResponse;
 import com.pace.server.domain.member.service.PreferenceService;
 import com.pace.server.global.common.code.SuccessCode;
 import com.pace.server.global.common.response.ApiResponse;
-import com.pace.server.global.security.oauth2.CustomOAuth2User;
+import com.pace.server.global.security.jwt.JwtAuthentication;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,17 +34,17 @@ public class PreferenceController {
 	@Operation(summary = "설정 조회")
 	@GetMapping
 	public ApiResponse<PreferenceResponse> getPreference(
-		@AuthenticationPrincipal CustomOAuth2User principal) {
-		PreferenceResponse response = preferenceService.getPreference(principal.getUserId());
+			@AuthenticationPrincipal JwtAuthentication principal) {
+		PreferenceResponse response = preferenceService.getPreference(principal.userId());
 		return ApiResponse.ok(response);
 	}
 
 	@Operation(summary = "설정 수정", description = "지역, 음성, 브리핑 시간 설정")
 	@PutMapping
 	public ApiResponse<PreferenceResponse> updatePreference(
-		@AuthenticationPrincipal CustomOAuth2User principal,
-		@Valid @RequestBody UpdatePreferenceRequest request) {
-		PreferenceResponse response = preferenceService.updatePreference(principal.getUserId(), request);
+			@AuthenticationPrincipal JwtAuthentication principal,
+			@Valid @RequestBody UpdatePreferenceRequest request) {
+		PreferenceResponse response = preferenceService.updatePreference(principal.userId(), request);
 		return ApiResponse.success(SuccessCode.UPDATED, response);
 	}
 }
