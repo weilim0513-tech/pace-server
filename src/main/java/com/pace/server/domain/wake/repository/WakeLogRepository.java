@@ -15,6 +15,10 @@ public interface WakeLogRepository extends JpaRepository<WakeLog, Long> {
 
 	Optional<WakeLog> findByUserIdAndWakeDate(Long userId, LocalDate wakeDate);
 
+	List<WakeLog> findByUserIdAndIsSuccessTrueOrderByWakeDateDesc(Long userId);
+
+	long countByUserIdAndIsSuccessTrue(Long userId);
+
 	@Query("SELECT COUNT(w) FROM WakeLog w WHERE w.user.id = :userId AND w.isSuccess = true AND w.wakeDate >= :startDate")
 	long countSuccessfulWakes(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
 }
