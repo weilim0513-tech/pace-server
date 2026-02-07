@@ -80,6 +80,11 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+
+    // Testcontainers (통합 테스트용 Docker 컨테이너)
+    testImplementation("org.springframework.boot:spring-boot-testcontainers")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("com.redis:testcontainers-redis:2.2.4")
 }
 
 // BOM (Bill of Materials) import
@@ -87,6 +92,7 @@ dependencyManagement {
     imports {
         mavenBom("org.springframework.cloud:spring-cloud-dependencies:${property("springCloudVersion")}")
         mavenBom("org.springframework.ai:spring-ai-bom:${property("springAiVersion")}")
+        mavenBom("org.testcontainers:testcontainers-bom:1.21.4")
     }
 }
 
