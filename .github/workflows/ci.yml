@@ -19,12 +19,12 @@ jobs:
     
     steps:
     - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         fetch-depth: 0  # SonarCloud를 위한 전체 히스토리
 
     - name: ☕ Setup JDK 25
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b  # v4.6.0
       with:
         java-version: '25'
         distribution: 'temurin'
@@ -42,14 +42,14 @@ jobs:
         SPRING_PROFILES_ACTIVE: test
 
     - name: 📊 Publish Test Results
-      uses: EnricoMi/publish-unit-test-result-action@v2
+      uses: EnricoMi/publish-unit-test-result-action@170bf024fc3b22a2a9a3f2f422aba786e51cb24f  # v2.19.0
       if: always()
       with:
         files: |
           build/test-results/**/*.xml
 
     - name: 📝 Upload Test Reports
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.0
       if: failure()
       with:
         name: test-reports
@@ -57,7 +57,7 @@ jobs:
         retention-days: 7
 
     - name: 📈 Upload JaCoCo Coverage Report
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02  # v4.6.0
       if: always()
       with:
         name: jacoco-report
@@ -70,12 +70,12 @@ jobs:
     
     steps:
     - name: 📥 Checkout Repository
-      uses: actions/checkout@v4
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
       with:
         fetch-depth: 0
 
     - name: ☕ Setup JDK 25
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@7a6d8a8234af8eb26422e24e3006232cccaa061b  # v4.6.0
       with:
         java-version: '25'
         distribution: 'temurin'
